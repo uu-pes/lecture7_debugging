@@ -25,40 +25,140 @@
 
 <!-- BEGIN SLIDES -->
 <section data-background-image="images/background.jpg" data-background-opacity="0.4">
-	<h1>Lecture 5</h1>
+	<h1>Lecture 6</h1>
 	<p>Nikolaus Huber</p>
 </section>
 
-<section data-background-image="images/memory.jpg" data-background-opacity="0.2">
-	<h1>Memory Management</h1>
+<section>
+	<h1>Debugging</h1>
 </section>
 
 <section>
-	<h3>Memory Architecture</h3>
+	<h3>Outline</h3>
 	<ul>
-		<li class="fragment fade-up">µCs often use a Harvard architecture</li>
-		<ul>
-			<li class="fragment fade-up">Separate memory + buses for code (ROM) and data (RAM)</li>
-			<li class="fragment fade-up">Code is usually executed in place (XIP), not copied to RAM before execution</li>
-		</ul>
-		<li class="fragment fade-up">Some amount of RAM/ROM is integrated in the µC</li>
-		<ul>
-			<li class="fragment fade-up">Usually more ROM than RAM</li>
-		</ul>
-		<li class="fragment fade-up">Can be extended through external memory if needed</li>
-		<li class="fragment fade-up">RP2040 actually relies on external ROM</li>
+		<li>What is debugging?</li>
+		<li>Systematic debugging</li>
+		<li>Problem shrinking</li>
+		<li>Slicing</li>
+		<li>Tools</li>
 	</ul>
 </section>
 
 <section>
-	<h3>Read-only Memory (ROM)</h3>
+	<h3>What is debugging?</h3>
+	<div class="citation">
+		<div class="cite">
+			[...] it is the process of "diagnosing the precise nature of a known error and then correcting it." 
+		</div>
+		<div class="source">Software debugging, testing, and verification, B. Hailpern, P. Santhanam. IBM Systems Journal, 2002</div>
+	</div>
 	<ul>
-		<li class="fragment fade-up">Used to store code + constant data (e.g. lookup tables)</li>
-		<li class="fragment fade-up">Unrestricted reading, usually difficult to write</li>
-		<li class="fragment fade-up">Most common (today): Flash memory</li>
-		<li class="fragment fade-up">Other kinds do exist: PROM, UV-EPROM, EEPROM</li>
-		<li class="fragment fade-up">Pico Board has 2MB of Flash (external)</li>
+		<li>Given a specification $\Phi$ and a program $P$, not satisfying some $\phi_k \in \Phi$</li>
+		<li>Find a program $P'$ close to $P$ that does satisfy $\phi_k$</li>
+		<li>Original program $P$ is said to contain a <emph>bug</emph></li>
 	</ul>
+</section>
+
+<section>
+	<img class="r-stretch" src="images/hopper.jpg">
+</section>
+
+<section>
+	<img class="r-stretch" src="images/bug.jpg">
+</section>
+
+<section>
+	<h3>Starting point</h3>
+	<ul>
+		<li><emph>Failure</emph> observed during development, testing, ...</li>
+		<li>Failing test case</li>
+		<li>Problem during use of system</li>
+		<ul>
+			<li>Should write a test case reproducing the problem</li>
+		</ul>
+		<li>Issue reported by someone else</li>
+		<ul>
+			<li>First need to <emph>reproduce</emph> the failure</li>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>From failure to fault</h3>
+	<ol>
+		<li>Verify the <emph>failure</emph>, determine correct behaviour</li>
+		<li>Isolate and minimize (shrink)</li>
+		<li>Eyeball the code, where could the <emph>fault</emph> be?</li>
+		<li>Divise and run experiments to test your hypothesis</li>
+		<li>Repeat 3 & 4 until you understand what's wrong</li>
+		<li>Fix the fault/bug and verify the fix</li>
+		<li>Create a <emph>regression test</emph></li>
+	</ol>
+</section>
+
+<section>
+	<h3>Running example</h3>
+	<pre class="C"><code data-trim data-noescape data-line-numbers="">
+		int search(int array[], int len, int target) { 
+			int low = 0;
+			int high = len;
+
+			while (low <= high) {
+				int mid = (low + high) / 2; 
+
+				if (target < array[mid]) {
+					high = mid - 1;
+				} else if (target > array[mid]) {
+					low = mid + 1; 
+				} else {
+					return mid; 
+				}
+			}
+			return -1; 
+		}
+	</code></pre>
+</section>
+
+<section>
+	<h3>Problem minimisation 1: Inputs</h3>
+	<ul>
+		<li>We want to get rid of <emph>irrelevant</emph> complexity</li>
+		<li>Try to simplify the situation</li>
+	</ul>
+	<div style="margin-top: 1rem" class="citation">
+		<div class="cite">As an analogon from the real world, consider a flight test: an air plane crashes a 
+			few seconds after taking off. By repeating the situation over and over again under changed circumstances, 
+			we can find out what is relevant and what not. For instance, we may leave away the passenger seats and find 
+			that the plane still crashes. [...] Eventually, only the relevant "simplified" skeleton remains, including a 
+			test pilot, the wings, the runway, the fuel, and the engines. Each part of this skeleton is relevant for 
+			reproducing the crash. 
+		</div>
+		<div class="source">Simplifying and Isolating Failure-Inducing Input, A. Zeller, R. Hildebrandt. IEEE Transactions on SE, 2002</div>
+	</div>
+</section>
+
+<section>
+	<h3>Shrinking</h3>
+	<ul>
+		<li>Going from failing program input to <emph>minimal</emph> failing program input</li>
+		<li>Shrink the program input</li>
+		<li>See if problem still occurs</li>
+		<li>If so shrink more</li>
+		<li>If not, backtrack</li>
+		<li>Can be done manually, some clever algorithms do exist</li>
+	</ul>
+</section>
+
+<section>
+	<img class="r-stretch" src="images/ddmin_example_1.drawio.svg">
+</section>
+
+<section>
+	<img class="r-stretch" src="images/ddmin_example_2.drawio.svg">
+</section>
+
+<section>
+	<img class="r-stretch" src="images/ddmin_example_3.drawio.svg">
 </section>
 
 <section>
