@@ -1,0 +1,382 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Lecture 5</title>
+
+		<link rel="shortcut icon" type="image/x-icon" href="uu_logo/UU_logo_color-cropped.ico">
+
+		<link rel="stylesheet" href="reveal.js/dist/reset.css">
+		<link rel="stylesheet" href="reveal.js/dist/reveal.css">
+		<link rel="stylesheet" href="reveal.js/dist/theme/black.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="atomic-one-dark.css">
+
+		<!-- Custom css -->
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<img class="logo" src="uu_logo/UU_logo_vit-cropped.svg">
+		<div class="reveal">
+			<div class="slides">
+
+<!-- BEGIN SLIDES -->
+<section data-background-image="images/background.jpg" data-background-opacity="0.4">
+	<h1>Lecture 5</h1>
+	<p>Nikolaus Huber</p>
+</section>
+
+<section data-background-image="images/memory.jpg" data-background-opacity="0.2">
+	<h1>Memory Management</h1>
+</section>
+
+<section>
+	<h3>Memory Architecture</h3>
+	<ul>
+		<li class="fragment fade-up">µCs often use a Harvard architecture</li>
+		<ul>
+			<li class="fragment fade-up">Separate memory + buses for code (ROM) and data (RAM)</li>
+			<li class="fragment fade-up">Code is usually executed in place (XIP), not copied to RAM before execution</li>
+		</ul>
+		<li class="fragment fade-up">Some amount of RAM/ROM is integrated in the µC</li>
+		<ul>
+			<li class="fragment fade-up">Usually more ROM than RAM</li>
+		</ul>
+		<li class="fragment fade-up">Can be extended through external memory if needed</li>
+		<li class="fragment fade-up">RP2040 actually relies on external ROM</li>
+	</ul>
+</section>
+
+<section>
+	<h3>Read-only Memory (ROM)</h3>
+	<ul>
+		<li class="fragment fade-up">Used to store code + constant data (e.g. lookup tables)</li>
+		<li class="fragment fade-up">Unrestricted reading, usually difficult to write</li>
+		<li class="fragment fade-up">Most common (today): Flash memory</li>
+		<li class="fragment fade-up">Other kinds do exist: PROM, UV-EPROM, EEPROM</li>
+		<li class="fragment fade-up">Pico Board has 2MB of Flash (external)</li>
+	</ul>
+</section>
+
+<section>
+	<h3>Random-Access Memory (RAM)</h3>
+	<ul>
+		<li class="fragment fade-up">Used for data (e.g. stack, heap)</li>
+		<ul>
+			<li class="fragment fade-up">Can also be use for code (more uncommon)</li>
+		</ul>
+		<li class="fragment fade-up">Two main kinds in use today: SRAM, DRAM</li>
+		<li class="fragment fade-up">Can be accessed through caches</li>
+		<ul>
+			<li class="fragment fade-up">Not so common for internal RAM in µC (why?)</li>
+		</ul>
+		<li class="fragment fade-up">RP2040 has 265kB on-chip SRAM</li>
+	</ul>
+</section>
+
+<section>
+	<img class="r-stretch" src="images/rp2040.png">
+	<div class="citation">
+		<div class="source">RP2040 Datasheet</div>
+	</div>
+</section>
+
+<section>
+	<img class="r-stretch" src="images/rp2040_memory.png">
+	<div class="citation">
+		<div class="source">RP2040 Datasheet</div>
+	</div>
+</section>
+
+<section>
+	<h3>ARM Cortex-M0 layout</h3>
+	<ul>
+		<li class="fragment fade-up">Processor has a fixed memory map providing up to 4GB of addressable memory</li>
+		<li class="fragment fade-up">RAM, ROM, peripheral registers, ... are mapped into different memory regions</li>
+		<li class="fragment fade-up">Details depend on the implemenentation of the chip</li>
+		<li class="fragment fade-up">For example: Section 2.2. Address Map (RP2040 datasheet)</li>
+	</ul>
+</section>
+
+<section>
+	<h3>Read - Modify - Write</h3>
+	<ul>
+		<li class="fragment fade-up">We often want to set a single bit in a register</li>
+		<li class="fragment fade-up">Typically, a CPU cannot write individual bits, only entire bytes or even words</li>
+		<li class="fragment fade-up">If we want to set a single bit, we need to</li>
+		<ul>
+			<li class="fragment fade-up">Read the whole register</li>
+			<li class="fragment fade-up">Modify one bit (i.e., do some logic operation)</li>
+			<li class="fragment fade-up">Write the modified value back into the register</li>
+		</ul>
+		<li class="fragment fade-up"><emph>This is not atomic!</emph></li>
+	</ul>
+</section>
+
+<section>
+	<h3>Solution 1 - Bit-Banding</h3>
+	<ul>
+		<li class="fragment fade-up">Optional feature of ARM Cortex-M3 and M4 µCs</li>
+		<li class="fragment fade-up">1MB of bit-band region is mapped to 32MB alias region</li>
+		<ul>
+			<li class="fragment fade-up">Each bit in bit-band region corresponds to a full word in alias region</li>
+			<li class="fragment fade-up">We can set a single bit by writing a full word in the alias region</li>
+			<li class="fragment fade-up">We can read a single bit by reading from the alias region</li>
+		</ul>
+		<li class="fragment fade-up">Used for example by STM32 chips</li>
+		<li class="fragment fade-up">More info: <a href="https://developer.arm.com/documentation/ddi0439/b/Programmers-Model/Bit-banding">ARM Developer Manual</a></li>
+	</ul>
+</section>
+
+<section>
+	<h3>Solution 2 - Bit Set and Clear Registers</h3>
+	<ul>
+		<li class="fragment fade-up">Used by RP2040</li>
+		<li class="fragment fade-up">A register with multiple bit fields has dedicated SET and CLR registers</li>
+		<li class="fragment fade-up">Writing a word to SET will set all bits in the main register that are set in the word</li>
+		<li class="fragment fade-up">Writing a word to CLR will clear all bits in the main register that are set in the word</li>
+		<li class="fragment fade-up">Main register might not even be visible/accessible!</li>
+
+		<aside class="notes">
+			Do example on Board:
+			Main: 0b00001111
+			Set:  0b00110000
+			Res:  0b00111111 
+
+			Main: 0b00111111 
+			Clr:  0b00001001 
+			Res:  0b00110110
+		</aside>
+	</ul>
+</section>
+
+<section>
+	<h3>Ways to manage memory</h3>
+	<ul>
+		<li class="fragment fade-up">At compile time (statically)</li>
+		<li class="fragment fade-up">At startup time</li>
+		<li class="fragment fade-up">At runtime (dynamically)</li>
+	</ul>
+</section>
+
+<section>
+	<h3>Management at compile time</h3>
+	<ul>
+		<li class="fragment fade-up">Compiler/Linker creates segments for different kinds of data/code</li>
+		<ul>
+			<li class="fragment fade-up">Code (.text)</li>
+			<li class="fragment fade-up">Read-only data (.rodata)</li>
+			<li class="fragment fade-up">Read-write data (.data)</li>
+			<li class="fragment fade-up">Zero-initialized read-write data (.bss)</li>
+		</ul>
+		<li class="fragment fade-up">More segments possible, depends on implementation and compiler/linker</li>
+		<li class="fragment fade-up">Code/data is flashed to µC, RAM is initialized during start-up</li>
+	</ul>
+</section>
+
+
+
+<section>
+	<h3>Management at compile time</h3>
+	<ul>
+		<li class="fragment fade-up">Mapping of data to segments can be automatic (static, const) or explicit (compiler specific, gcc: #pragma)</li>
+		<li class="fragment fade-up">Layout of segments in memory can be chosen in linker file</li>
+		<li class="fragment fade-up">Examples (assume global variables)</li>
+		<ul>
+			<li class="fragment fade-up">char rwData[100]; => .bss, RAM</li>
+			<li class="fragment fade-up">char raData[3] = {1, 2, 3}; => .data, RAM</li>
+			<li class="fragment fade-up">const char roData[3] = {1, 2, 3}; => .rodata/.constdata, ROM</li>
+		</ul>
+	</ul>
+</section>
+
+<section data-background-image="images/code.jpg" data-background-opacity="0.4">
+	<h1>Example - Linker file </h1>
+</section>
+
+<section>
+	<h3>Memory in embedded systems</h3>
+	<ul>
+		<li class="fragment fade-up">Most common way of memory management</li>
+		<ul>
+			<li class="fragment fade-up">Allocate all required memory at compile time</li>
+			<li class="fragment fade-up">Sometimes enforced by coding standards</li>
+			<li class="fragment fade-up">Little risk of runtime errors due to memory management problems</li>
+		</ul>
+		<li class="fragment fade-up">Dynamic memory management</li>
+		<ul>
+			<li class="fragment fade-up">Manual management: malloc( ), free( )</li>
+			<li class="fragment fade-up">More flexible, might be necessary in some cases</li>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>Dynamic memory management</h3>
+	<ul>
+		<li class="fragment fade-up">Can cause various problems</li>
+		<ul>
+			<li class="fragment fade-up">Possibly insufficient memory during runtime</li>
+			<li class="fragment fade-up">Fragmentation</li>
+			<li class="fragment fade-up">Implementation of malloc and free can be of substantial size</li>
+			<li class="fragment fade-up">Are malloc and free reentrant functions?</li>
+		</ul>
+		<li class="fragment fade-up">Sometimes compromise: no free, only use malloc during start-up</li>
+		<ul>
+			<li class="fragment fade-up">Easier to test and verify</li>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>Malloc and free</h3>
+	<ul>
+		<li>Often implemented by the (RT)OS</li>
+		<ul>
+			<li>FreeRTOS</li>
+			<ul>
+				<li>Heap_1: only malloc, no free</li>
+				<li>Heap_2: malloc + free</li>
+				<li>Heap_3: malloc + free, both thread-safe</li>
+				<li>Heap_4: same as Heap_3, but tries to avoid fragmentation</li>
+			</ul>
+			<li>Zephyr</li>
+			<ul>
+				<li>Heaps can be created with K_HEAP_DEFINE</li>
+				<li>Can use k_heap_alloc and k_heap_free</li>
+				<li>Use of libc malloc and free is discouraged</li>
+				<li>For more info look into the Zephyr documentation!</li>
+			</ul>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>Task stack overflow detection</h3>
+	<ul>
+		<li class="fragment fade-up">Canaries</li>
+		<ul>
+			<li class="fragment fade-up">Initially write some known data/pattern to the end of the stack</li>
+			<li class="fragment fade-up">Periodically check wether that data is still there</li>
+		</ul>
+		<li class="fragment fade-up">In Zephyr => CONFIG_STACK_SENTINEL, gets checked at</li>
+		<ul>
+			<li class="fragment fade-up">Context switch</li>
+			<li class="fragment fade-up">Hardware interrupts</li>
+			<li class="fragment fade-up">Thread returns from entry point</li>
+			<li class="fragment fade-up">k_yield</li>
+		</ul>
+		<li class="fragment fade-up">In Zephyr only used when there is no MPU</li>
+	</ul>
+</section>
+
+<section>
+	<h3>Processor modes</h3>
+	<ul>
+		<li class="fragment fade-up">ARM processor has multiple processor modes</li>
+		<ul>
+			<li class="fragment fade-up">Thread mode</li>
+			<ul>
+				<li class="fragment fade-up">For executing applications</li>
+				<li class="fragment fade-up">SW can be executed as privileged or unpriviledged</li>
+			</ul>
+			<li class="fragment fade-up">Handler mode</li>
+			<ul>
+				<li class="fragment fade-up">Entered as a result of an execution, always in privileged</li>
+				<li class="fragment fade-up">Processor returns to Thread mode when it has finished exception handling</li>
+			</ul>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>Software execution modes</h3>
+	<ul>
+		<li class="fragment fade-up">Unpriviledged mode</li>
+		<ul>
+			<li class="fragment fade-up">Limited access to instructions (cannot change processor state for example)</li>
+			<li class="fragment fade-up">Cannot access the sytem timer, NVIC, or system control registers</li>
+			<li class="fragment fade-up">Might have restricted access to memory or peripherals</li>
+		</ul>
+		<li class="fragment fade-up">Privileged mode</li>
+		<ul>
+			<li class="fragment fade-up">Software can use all instructions and has access to all resources</li>
+		</ul>
+		<li class="fragment fade-up">Unpriviledged SW usually requests OS services by issuing a software interrupt => change to handler mode</li>
+	</ul>
+</section>
+
+<section data-background-color="white">
+	<h3>ARM Operation Modes</h3>
+	<img class="r-stretch" src="images/arm_modes.drawio.svg">
+	<div class="citation" style="color:white">
+		<div class="source">Adapted from: The Definite Guide to ARM Cortex-M3 and Cortex-M4 Processors, Joseph Yiu, 3rd Edition</div>
+	</div>
+</section>
+
+<section>
+	<h3>Memory protection unit</h3>
+	<ul>
+		<li class="fragment fade-up">Allows access rules to be set up for privileged access and user program access</li>
+		<li class="fragment fade-up">When an access rule is violated => fault exception</li>
+		<li class="fragment fade-up">Example usages:</li>
+		<ul>
+			<li class="fragment fade-up">MPU can protect data that belongs to the OS from user programs</li>
+			<li class="fragment fade-up">MPU can set certain memory regions read-only to prevent accidentally erasing configuration data</li>
+			<li class="fragment fade-up">MPU can shield different tasks in a multitasking system</li>
+		</ul>
+		<li class="fragment fade-up">More info: <a href="https://developer.arm.com/documentation/ddi0439/b/Memory-Protection-Unit?lang=en">ARM Developer Manual</a></li>
+	</ul>
+</section>
+
+<section>
+	<h3>Preparation for lab 3</h3>
+</section>
+
+<section>
+	<h3>Zephyr Sensor Subsystem</h3>
+	<ul>
+		<li class="fragment fade-up">Zephyr tries to describe applications on a high level</li>
+		<li class="fragment fade-up">By developing against Zephyr API => high portability</li>
+		<li class="fragment fade-up">Provides unified API for accessing sensors</li>
+		<li class="fragment fade-up">Works on <emph>channels</emph>
+		<ul>
+			<li class="fragment fade-up">Measurable quantity</li>
+			<li class="fragment fade-up">Examples: SENSOR_CHAN_ACCEL_X, SENSOR_CHAN_VOLTAGE, SENSOR_CHAN_AMBIENT_TEMP</li>
+			<li class="fragment fade-up">Every channel has a defined unit</li>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h1>Thanks for today!</h1>
+</section>
+
+<!-- END SLIDES -->
+</div>
+</div>
+		<script src="reveal.js/dist/reveal.js"></script>
+		<script src="reveal.js/plugin/notes/notes.js"></script>
+		<script src="reveal.js/plugin/markdown/markdown.js"></script>
+		<script src="reveal.js/plugin/highlight/highlight.js"></script>
+		<script src="reveal.js/plugin/math/math.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+				controlsTutorial: false,
+				transition: 'fade', 
+				slideNumber: 'c', 
+				pdfSeparateFragments: false, 
+				navigationMode: 'linear', 
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMath.KaTeX, RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
