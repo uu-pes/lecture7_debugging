@@ -29,7 +29,7 @@
 	<p>Nikolaus Huber</p>
 </section>
 
-<section>
+<section data-background-image="images/duck.jpg" data-background-opacity="0.12">
 	<h1>Debugging</h1>
 </section>
 
@@ -53,9 +53,9 @@
 		<div class="source">Software debugging, testing, and verification, B. Hailpern, P. Santhanam. IBM Systems Journal, 2002</div>
 	</div>
 	<ul>
-		<li>Given a specification $\Phi$ and a program $P$, not satisfying some $\phi_k \in \Phi$</li>
-		<li>Find a program $P'$ close to $P$ that does satisfy $\phi_k$</li>
-		<li>Original program $P$ is said to contain a <emph>bug</emph></li>
+		<li class="fragment fade-up">Given a specification $\Phi$ and a program $P$, not satisfying some $\phi_k \in \Phi$</li>
+		<li class="fragment fade-up">Find a program $P'$ close to $P$ that does satisfy $\phi_k$</li>
+		<li class="fragment fade-up">Original program $P$ is said to contain a <emph>bug</emph></li>
 	</ul>
 </section>
 
@@ -70,15 +70,15 @@
 <section>
 	<h3>Starting point</h3>
 	<ul>
-		<li><emph>Failure</emph> observed during development, testing, ...</li>
-		<li>Failing test case</li>
-		<li>Problem during use of system</li>
+		<li class="fragment fade-up"><emph>Failure</emph> observed during development, testing, ...</li>
+		<li class="fragment fade-up">Failing test case</li>
+		<li class="fragment fade-up">Problem during use of system</li>
 		<ul>
-			<li>Should write a test case reproducing the problem</li>
+			<li class="fragment fade-up">Should write a test case reproducing the problem</li>
 		</ul>
-		<li>Issue reported by someone else</li>
+		<li class="fragment fade-up">Issue reported by someone else</li>
 		<ul>
-			<li>First need to <emph>reproduce</emph> the failure</li>
+			<li class="fragment fade-up">First need to <emph>reproduce</emph> the failure</li>
 		</ul>
 	</ul>
 </section>
@@ -86,17 +86,17 @@
 <section>
 	<h3>From failure to fault</h3>
 	<ol>
-		<li>Verify the <emph>failure</emph>, determine correct behaviour</li>
-		<li>Isolate and minimize (shrink)</li>
-		<li>Eyeball the code, where could the <emph>fault</emph> be?</li>
-		<li>Divise and run experiments to test your hypothesis</li>
-		<li>Repeat 3 & 4 until you understand what's wrong</li>
-		<li>Fix the fault/bug and verify the fix</li>
-		<li>Create a <emph>regression test</emph></li>
+		<li class="fragment fade-up">Verify the <emph>failure</emph>, determine correct behaviour</li>
+		<li class="fragment fade-up">Isolate and minimize (shrink)</li>
+		<li class="fragment fade-up">Eyeball the code, where could the <emph>fault</emph> be?</li>
+		<li class="fragment fade-up">Divise and run experiments to test your hypothesis</li>
+		<li class="fragment fade-up">Repeat 3 & 4 until you understand what's wrong</li>
+		<li class="fragment fade-up">Fix the fault/bug and verify the fix</li>
+		<li class="fragment fade-up">Create a <emph>regression test</emph></li>
 	</ol>
 </section>
 
-<section>
+<!-- <section>
 	<h3>Running example</h3>
 	<pre class="C"><code data-trim data-noescape data-line-numbers="">
 		int search(int array[], int len, int target) { 
@@ -117,15 +117,19 @@
 			return -1; 
 		}
 	</code></pre>
+</section> -->
+
+<section>
+	<h1>Problem minimisation</h1>
 </section>
 
 <section>
 	<h3>Problem minimisation 1: Inputs</h3>
 	<ul>
-		<li>We want to get rid of <emph>irrelevant</emph> complexity</li>
-		<li>Try to simplify the situation</li>
+		<li class="fragment fade-up">We want to get rid of <emph>irrelevant</emph> complexity</li>
+		<li class="fragment fade-up">Try to simplify the situation</li>
 	</ul>
-	<div style="margin-top: 1rem" class="citation">
+	<div style="margin-top: 1rem" class="fragment fade-up citation">
 		<div class="cite">As an analogon from the real world, consider a flight test: an air plane crashes a 
 			few seconds after taking off. By repeating the situation over and over again under changed circumstances, 
 			we can find out what is relevant and what not. For instance, we may leave away the passenger seats and find 
@@ -140,12 +144,12 @@
 <section>
 	<h3>Shrinking</h3>
 	<ul>
-		<li>Going from failing program input to <emph>minimal</emph> failing program input</li>
-		<li>Shrink the program input</li>
-		<li>See if problem still occurs</li>
-		<li>If so shrink more</li>
-		<li>If not, backtrack</li>
-		<li>Can be done manually, some clever algorithms do exist</li>
+		<li class="fragment fade-up">Going from failing program input to <emph>minimal</emph> failing program input</li>
+		<li class="fragment fade-up">Shrink the program input</li>
+		<li class="fragment fade-up">See if problem still occurs</li>
+		<li class="fragment fade-up">If so shrink more</li>
+		<li class="fragment fade-up">If not, backtrack</li>
+		<li class="fragment fade-up">Can be done manually, some clever algorithms do exist</li>
 	</ul>
 </section>
 
@@ -153,16 +157,16 @@
 	<section>
 		<h3>Delta Debugging algorithm</h3>
 		<ul>
-			<li>Generalization of binary search</li>
-			<li>Basic idea:</li>
+			<li class="fragment fade-up">Generalization of <emph>greedy binary search</emph></li>
+			<li class="fragment fade-up">Basic idea:</li>
 			<ul>
-				<li>Divide input into chunks (initially 2)</li>
-				<li>Remove a chunk, does the test still fail?</li>
-				<li>If yes, continue without it</li>
-				<li>If no, increase granularity (*2)</li>
-				<li>Stop when cutting aways doesn't help anymore and number of chunks is the length of the input</li>
+				<li class="fragment fade-up">Divide input into chunks (initially 2)</li>
+				<li class="fragment fade-up">Remove a chunk, does the test still fail?</li>
+				<li class="fragment fade-up">If yes, continue without it</li>
+				<li class="fragment fade-up">If no, increase granularity (*2)</li>
+				<li class="fragment fade-up">Stop when cutting away doesn't help anymore and number of chunks is the length of the input</li>
 			</ul>
-			<li>For more info, read the paper on Studium</li>
+			<li class="fragment fade-up">For more info, read the paper on Studium</li>
 		</ul>
 	</section>
 	<section>
@@ -194,61 +198,61 @@
 	<section>
 		<div><img style="width: 40%" src="images/ddmin_example_7.drawio.svg"></div>
 		<ul>
-			<li>Found a <emph>1-minimal</emph> input</li>
+			<li class="fragment fade-up">Found a <emph>1-minimal</emph> input</li>
 			<ul>
-				<li>Removing any element of the array will cause the test to succeed</li>
+				<li class="fragment fade-up">Removing any element of the array will cause the test to succeed</li>
 			</ul>
-			<li>Other types of minima exist</li>
+			<li class="fragment fade-up">Other types of minima exist</li>
 			<ul>
-				<li>Local minimum</li>
-				<li>Global minimum</li>
+				<li class="fragment fade-up">Local minimum</li>
+				<li class="fragment fade-up">Global minimum</li>
 			</ul>
-			<li>Global minima $\subseteq$ Local minima $\subseteq$ 1-Minima </li>
+			<li class="fragment fade-up">Global minima $\subseteq$ Local minima $\subseteq$ 1-Minima </li>
 		</ul>
 	</section>
 </section>
 
 <section>
-	<h3>Problem Minimisation 2: Reasoning Backwards</h3>
+	<h3>Problem Minimisation 2: Slicing</h3>
 	<ul>
-		<li>Central concept of debugging</li>
-		<li>Main idea</li>
+		<li class="fragment fade-up">Central concept of debugging</li>
+		<li class="fragment fade-up">Main idea</li>
 		<ul>
-			<li>Given a Program $P$ and some occurance of variable $x$</li>
-			<li>Remove all statements that <emph>do not affect</emph> $x$</li>
-			<li>End up with a simplified version $P'$ of $P$</li>
-			<li>$P'$ only contains statements import for value of $x$</li>
+			<li class="fragment fade-up">Given a Program $P$ and some occurance of variable $x$</li>
+			<li class="fragment fade-up">Remove all statements that <emph>do not affect</emph> $x$</li>
+			<li class="fragment fade-up">End up with a simplified version $P'$ of $P$</li>
+			<li class="fragment fade-up">$P'$ only contains statements import for value of $x$</li>
 		</ul>
-		<li>Solution: <emph>Static Backward Slicing</emph></li>
+		<li class="fragment fade-up"><emph>Static Backward Slicing</emph></li>
 	</ul>
 </section>
 
 <section>
 	<h3>Slice construction</h3>
 	<ul>
-		<li>Need to create a <emph>Control Flow Graph</emph> (CFG)</li>
-		<li>Figure out which statements are control dependencies</li>
+		<li class="fragment fade-up">Figure out which statements are control dependencies</li>
+		<li class="fragment fade-up">Need to create a <emph>Control Flow Graph</emph> (CFG)</li>
 		<ul>
-			<li>Statement B is control dependent on A if A influences wether B is executed</li>
+			<li class="fragment fade-up">Statement B is control dependent on A if A influences wether B is executed</li>
 		</ul>
-		<li>Also need the <emph>data dependencies</emph></li>
+		<li class="fragment fade-up">Also need the <emph>data dependencies</emph></li>
 		<ul>
-			<li>Statement B is data dependent on A if A writes to a variable that B reads from</li>
+			<li class="fragment fade-up">Statement B is data dependent on A if A writes to a variable that B reads from</li>
 		</ul>
 	</ul>
 </section>
 
 <section>
-	<h3>Backward Slice</h3>
+	<h3>Backward Dependency</h3>
 	<ul>
-		<li>Satement B is <emph>directly backwards dependent</emph> on A if either</li>
+		<li class="fragment fade-up">Statement B is <emph>directly backwards dependent</emph> on A if either</li>
 		<ul>
-			<li>B is <emph>control dependent</emph> on A</li>
-			<li>B is <emph>data dependent</emph> on A</li>
+			<li class="fragment fade-up">B is <emph>control dependent</emph> on A</li>
+			<li class="fragment fade-up">B is <emph>data dependent</emph> on A</li>
 		</ul>
-		<li>Statement B is <emph>backwards dependent</emph> on A if B is <emph>directly backwards dependent</emph> on A in one or multiple steps</li>
+		<li class="fragment fade-up">Statement B is <emph>backwards dependent</emph> on A if B is <emph>directly backwards dependent</emph> on A in one or multiple steps</li>
 		<ul>
-			<li>Transitive closure of "directly backwards dependent"</li>
+			<li class="fragment fade-up">Transitive closure of "directly backwards dependent"</li>
 		</ul>
 	</ul>
 </section>
@@ -293,54 +297,65 @@
 	<ol style="margin-top: 1rem;">
 		<li>S in control-dependent on T, or</li>
 		<li>the occurance of x is data-dependent on T, or</li>
-		<li>T is a backward dependency of some statement from 1. or 2.</li>
+		<li>T is a backward dependency of some statement from (1.) or (2.) above</li>
 	</ol>
+</section>
+
+<section>
+	<h3>Computing Static Backward Slices</h3>
+	<ul>
+		<li class="fragment fade-up">By hand</li>
+		<li class="fragment fade-up">Using software tools</li>
+		<ul>
+			<li class="fragment fade-up">Frama-C has inbuilt support for slicing</li>
+		</ul>
+	</ul>
 </section>
 
 <section>
 	<h3>Bug finding / Observation</h3>
 	<ul>
-		<li>Simple logging</li>
+		<li class="fragment fade-up">Simple logging</li>
 		<ul>
-			<li>printf</li>
-			<li>serial output</li>
-			<li>LEDs</li>
-			<li>...</li>
+			<li class="fragment fade-up">printf</li>
+			<li class="fragment fade-up">serial output</li>
+			<li class="fragment fade-up">LEDs</li>
+			<li class="fragment fade-up">...</li>
 		</ul>
-		<li>Logging frameworks</li>
+		<li class="fragment fade-up">Logging frameworks</li>
 		<ul>
-			<li>log4c</li>
-			<li>Zephyr logging</li>
-			<li>...</li>
+			<li class="fragment fade-up">log4c</li>
+			<li class="fragment fade-up">Zephyr logging</li>
+			<li class="fragment fade-up">...</li>
 		</ul>
-		<li>Using a debugger</li>
+		<li class="fragment fade-up">Using a debugger</li>
 	</ul>
 </section>
 
 <section>
 	<h3>Debuggers</h3>
 	<ul>
-		<li>Sophisticated tools to inspect and control program execution</li>
-		<li>Most popular for C/C++: gdb</li>
-		<li>Various GUIs and front-ends exist</li>
-		<li>When using an IDE, debugging interface often already integrated</li>
+		<li class="fragment fade-up">Sophisticated tools to inspect and control program execution</li>
+		<li class="fragment fade-up">Most popular for C/C++: gdb</li>
+		<li class="fragment fade-up">Various GUIs and front-ends exist</li>
+		<li class="fragment fade-up">When using an IDE, debugging interface often already integrated</li>
 	</ul>
 </section>
 
 <section>
 	<h3>Features</h3>
 	<ul>
-		<li>Manual stepping</li>
-		<li>Inspection</li>
+		<li class="fragment fade-up">Manual stepping</li>
+		<li class="fragment fade-up">Inspection</li>
 		<ul>
-			<li>Variables, registers, memory</li>
-			<li>Call stack</li>
-			<li>Devices, peripherals</li>
-			<li>Thread state and data</li>
+			<li class="fragment fade-up">Variables, registers, memory</li>
+			<li class="fragment fade-up">Call stack</li>
+			<li class="fragment fade-up">Devices, peripherals</li>
+			<li class="fragment fade-up">Thread state and data</li>
 		</ul>
-		<li><emph>Breakpoints</emph>: Pause execution on program location</li>
-		<li><emph>Watchpoints</emph>: Pause execution on reading/writing to memory location</li>
-		<li>Tracing</li>
+		<li class="fragment fade-up"><emph>Breakpoints</emph>: Pause execution on program location</li>
+		<li class="fragment fade-up"><emph>Watchpoints</emph>: Pause execution on reading/writing to memory location</li>
+		<li class="fragment fade-up">Tracing</li>
 
 	</ul>
 </section>
