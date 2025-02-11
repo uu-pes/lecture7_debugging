@@ -55,12 +55,12 @@
 		<div class="source">Software debugging, testing, and verification, B. Hailpern, P. Santhanam. IBM Systems Journal, 2002</div>
 	</div>
 	<ul>
-		<li class="fragment fade-up">Given a specification $\Phi$ and a program $P$, not satisfying some $\phi_k \in \Phi$</li>
+		<li class="fragment fade-up">Given specifications $\Phi$ and a program $P$, not satisfying some $\phi_k \in \Phi$</li>
 		<li class="fragment fade-up">Find a program $P'$ close to $P$ that does satisfy $\phi_k$</li>
 		<li class="fragment fade-up">Original program $P$ is said to contain a <emph>bug</emph></li>
 	</ul>
 </section>
-
+<!--
 <section>
 	<img class="r-stretch" src="images/hopper.jpg"/>
 </section>
@@ -68,6 +68,7 @@
 <section>
 	<img class="r-stretch" src="images/bug.jpg" onclick="window.location = 'https://www.computerhistory.org/tdih/september/9/';"/>
 </section>
+-->
 
 <section>
 	<h3>Starting point</h3>
@@ -243,6 +244,7 @@
 	<ul>
 		<li class="fragment fade-up">Figure out which statements are control dependencies</li>
 		<li class="fragment fade-up">Need to create a <emph>Control Flow Graph</emph> (CFG)</li>
+
 		<ul>
 			<li class="fragment fade-up">Statement B is control dependent on A if A influences wether B is executed</li>
 		</ul>
