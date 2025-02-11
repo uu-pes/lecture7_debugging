@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Lecture 6</title>
+		<title>Lecture 7</title>
 
 		<link rel="shortcut icon" type="image/x-icon" href="uu_logo/UU_logo_color-cropped.ico">
 
@@ -25,8 +25,10 @@
 
 <!-- BEGIN SLIDES -->
 <section data-background-image="images/background.jpg" data-background-opacity="0.4">
-	<h1>Lecture 6</h1>
-	<p>Nikolaus Huber</p>
+	<h1>Lecture 7</h1>
+	<p>Paul Fiterau</p>
+	<br/>
+	<footer>Based on slides by Nikolaus Huber</footer>
 </section>
 
 <section data-background-image="images/duck.jpg" data-background-opacity="0.12">
@@ -60,17 +62,17 @@
 </section>
 
 <section>
-	<img class="r-stretch" src="images/hopper.jpg">
+	<img class="r-stretch" src="images/hopper.jpg"/>
 </section>
 
 <section>
-	<img class="r-stretch" src="images/bug.jpg">
+	<img class="r-stretch" src="images/bug.jpg" onclick="window.location = 'https://www.computerhistory.org/tdih/september/9/';"/>
 </section>
 
 <section>
 	<h3>Starting point</h3>
+	<emph>Failure</emph> observed during development, testing, e.g.
 	<ul>
-		<li class="fragment fade-up"><emph>Failure</emph> observed during development, testing, ...</li>
 		<li class="fragment fade-up">Failing test case</li>
 		<li class="fragment fade-up">Problem during use of system</li>
 		<ul>
@@ -89,7 +91,11 @@
 		<li class="fragment fade-up">Verify the <emph>failure</emph>, determine correct behaviour</li>
 		<li class="fragment fade-up">Isolate and minimize (shrink)</li>
 		<li class="fragment fade-up">Eyeball the code, where could the <emph>fault</emph> be?</li>
-		<li class="fragment fade-up">Divise and run experiments to test your hypothesis</li>
+		<li class="fragment fade-up">Divise and run experiments to test your hypothesis
+			<ul>
+				<li>e.g., hypothetical fixes, print-outs, use debugger</li>
+			</ul>
+		</li>
 		<li class="fragment fade-up">Repeat 3 & 4 until you understand what's wrong</li>
 		<li class="fragment fade-up">Fix the fault/bug and verify the fix</li>
 		<li class="fragment fade-up">Create a <emph>regression test</emph></li>
@@ -157,14 +163,13 @@
 	<section>
 		<h3>Delta Debugging algorithm</h3>
 		<ul>
-			<li class="fragment fade-up">Generalization of <emph>greedy binary search</emph></li>
 			<li class="fragment fade-up">Basic idea:</li>
 			<ul>
-				<li class="fragment fade-up">Divide input into chunks (initially 2)</li>
+				<li class="fragment fade-up">Divide input into $n$ chunks (initially $n = 2$)</li>
 				<li class="fragment fade-up">Remove a chunk, does the test still fail?</li>
-				<li class="fragment fade-up">If yes, continue without it</li>
-				<li class="fragment fade-up">If no, increase granularity (*2)</li>
-				<li class="fragment fade-up">Stop when cutting away doesn't help anymore and number of chunks is the length of the input</li>
+				<li class="fragment fade-up">If yes, continue without chunck</li>
+				<li class="fragment fade-up">If no, increase granularity $n = n*2$</li>
+				<li class="fragment fade-up">Stop when cutting away doesn't help anymore and number of chunks is the length of the input ($n == len(input)$)</li>
 			</ul>
 			<li class="fragment fade-up">For more info, read the paper on Studium</li>
 		</ul>
@@ -257,9 +262,6 @@
 			<li class="fragment fade-up">B is <emph>data dependent</emph> on A</li>
 		</ul>
 		<li class="fragment fade-up">Statement B is <emph>backwards dependent</emph> on A if B is <emph>directly backwards dependent</emph> on A in one or multiple steps</li>
-		<ul>
-			<li class="fragment fade-up">Transitive closure of "directly backwards dependent"</li>
-		</ul>
 	</ul>
 </section>
 

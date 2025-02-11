@@ -1,7 +1,7 @@
-# 1DT106 Lecture 6: Debugging
+# 1DT106 Lecture 7: Debugging
 
 This repository holds the slides for the sixth lecture in 1DT106 Programming
-Embedded Systems at Uppsala University. 
+Embedded Systems at Uppsala University, 2025 Edition. 
 
 ## Required software 
 
@@ -16,7 +16,7 @@ In order to work with this presentation, a few things need to be installed:
 In order to clone this repository do the following: 
 
 ```bash 
-git clone --recursive https://github.com/uu-1dt106/lecture6_debugging.git 
+git clone --recursive https://github.com/uu-pes/lecture7_debugging.git
 ```
 
 ## Export slides to PDF 
