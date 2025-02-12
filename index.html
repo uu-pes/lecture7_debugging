@@ -239,9 +239,36 @@
 	</ul>
 </section>
 
+
+<section>
+	<h3>The Puzzling Average Mark Case </h3>
+	<pre class="C"><code data-trim data-noescape data-line-numbers="|14|3,4,5,6,9,10,11,13,14|5|">
+		Pass = 0;
+		Fail = 0;
+		Count = 0;
+		while (!eof()) {
+			TotalMarks=0;
+			scanf("%d", Marks);
+			if (Marks >= 40) { Pass = Pass + 1; }
+			if (Marks < 40) { Fail = Fail + 1; }
+			Count = Count + 1;
+			TotalMarks = TotalMarks + Marks;
+		}
+		printf("Out of %d, %d passed and %d failed\n", Count, Pass, Fail);
+		average = TotalMarks/Count;
+		printf("The average was %d\n", average);
+	</code></pre>
+</section>
+
 <section>
 	<h3>Slice construction</h3>
 	<ul>
+		<li class="fragment fade-up">Need to consider <emph>dependencies</emph> between statements</li>
+		<ul>
+			<li class="fragment fade-up">Control dependencies</li>
+			<li class="fragment fade-up">Data dependency</li>
+		</ul>
+
 		<li class="fragment fade-up">Figure out which statements are control dependencies</li>
 		<li class="fragment fade-up">Need to create a <emph>Control Flow Graph</emph> (CFG)</li>
 
@@ -253,6 +280,81 @@
 			<li class="fragment fade-up">Statement B is data dependent on A if A writes to a variable that B reads from</li>
 		</ul>
 	</ul>
+</section>
+
+<section>
+	<h3>Control Dependency</h3>
+	<ul>
+		<li class="fragment fade-up">Statement B is control dependent on A if A influences wether B is executed</li>
+		<li class="fragment fade-up">More formally, there is a path A -> n1 -> n2 ... -> B from A to B such that</li>
+		<ul>
+			<li class="fragment fade-up">All paths from any of n1, n2, ..., lead to B</li>
+			<li class="fragment fade-up">There are paths from A that do not traverse B</li>
+		</ul>
+	</ul>
+</section>
+<section>
+	<h3>Example - Control Dependency</h3>
+	<pre class="C"><code data-trim data-noescape data-line-numbers="|9,4|14,4|">
+		Pass = 0;
+		Fail = 0;
+		Count = 0;
+		while (!eof()) {
+			TotalMarks=0;
+			scanf("%d", Marks);
+			if (Marks >= 40) { Pass = Pass + 1; }
+			if (Marks < 40) { Fail = Fail + 1; }
+			Count = Count + 1;
+			TotalMarks = TotalMarks + Marks;
+		}
+		printf("Out of %d, %d passed and %d failed\n", Count, Pass, Fail);
+		average = TotalMarks/Count;
+		printf("The average was %d\n", average);
+	</code>
+	</pre>
+	<ul>
+	<li class="fragment fade-up">Statement 9 is control dependent on Statement 4</li>
+	<li class="fragment fade-up">Statement 14 is not control dependent on Statement 4</li>
+</ul>
+</section>
+
+
+<section>
+	<h3>Data Dependency</h3>
+	<ul>
+		<li class="fragment fade-up">Statement B is data dependent on A if A writes to a variable B reads from</li>
+		<li class="fragment fade-up">More formally, there is a path from A to B and a variable $x$ such that</li>
+		<ul>
+			<li class="fragment fade-up">$x$ is updated by A</li>
+			<li class="fragment fade-up">$x$ is read by B</li>
+			<li class="fragment fade-up">$x$ not updated by any of the nodes (statements) from A to B</li>
+		</ul>
+	</ul>
+</section>
+
+<section>
+	<h3>Example - Data Dependency</h3>
+	<pre class="C"><code data-trim data-noescape data-line-numbers="|14,13|13,5|">
+		Pass = 0;
+		Fail = 0;
+		Count = 0;
+		while (!eof()) {
+			TotalMarks=0;
+			scanf("%d", Marks);
+			if (Marks >= 40) { Pass = Pass + 1; }
+			if (Marks < 40) { Fail = Fail + 1; }
+			Count = Count + 1;
+			TotalMarks = TotalMarks + Marks;
+		}
+		printf("Out of %d, %d passed and %d failed\n", Count, Pass, Fail);
+		average = TotalMarks/Count;
+		printf("The average was %d\n", average);
+	</code>
+	</pre>
+	<ul>
+	<li class="fragment fade-up">Statement 14 is data dependent on Statement 13</li>
+	<li class="fragment fade-up">Statement 13 is not data dependent on Statement 5</li>
+</ul>
 </section>
 
 <section>
@@ -268,8 +370,18 @@
 </section>
 
 <section>
+	<h3>Static Backward Slice</h3>
+	<div>Given some occurance of variable x in a statement S, the <emph>static backward slice</emph> is the set of statements T such that</div>
+	<ol style="margin-top: 1rem;">
+		<li>S in control-dependent on T, or</li>
+		<li>the occurance of x is data-dependent on T, or</li>
+		<li>T is a backward dependency of some statement from (1.) or (2.) above</li>
+	</ol>
+</section>
+
+<section>
 	<section>
-		<h3>Example</h3>
+		<h3>Example - Static Backward Slice</h3>
 		<pre class="C"><code data-trim data-noescape data-line-numbers="|14|3,4,5,6,9,10,11,13,14|5|">
 			Pass = 0;
 			Fail = 0;
@@ -299,16 +411,6 @@
 	<section data-background-color="white">
 		<img class="r-stretch" src="images/avg_marks_example_3.drawio.svg">
 	</section>
-</section>
-
-<section>
-	<h3>Static Backward Slice</h3>
-	<div>Given some occurance of variable x in a statement S, the <emph>static backward slice</emph> is the set of statements T such that</div>
-	<ol style="margin-top: 1rem;">
-		<li>S in control-dependent on T, or</li>
-		<li>the occurance of x is data-dependent on T, or</li>
-		<li>T is a backward dependency of some statement from (1.) or (2.) above</li>
-	</ol>
 </section>
 
 <section>
