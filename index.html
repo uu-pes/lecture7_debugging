@@ -161,6 +161,17 @@
 </section>
 
 <section>
+	<h3>Motivation</h3>
+	The input that made Mozilla crash in 2002:
+	<img class="r-stretch" src="images/mozilla.png">
+	<ul>
+		<li class="fragment fade-up">Cause of problem/minimal input to expose it?</li>
+		<li class="fragment fade-up">&lt;SELECT&gt;</li>
+		<li class="fragment fade-up">How to do this?</li>
+	</ul>
+</section>
+
+<section>
 	<section>
 		<h3>Delta Debugging algorithm</h3>
 		<ul>
@@ -172,7 +183,7 @@
 				<li class="fragment fade-up">If no, increase granularity $n = n*2$</li>
 				<li class="fragment fade-up">Stop when cutting away doesn't help anymore and number of chunks is the length of the input ($n == len(input)$)</li>
 			</ul>
-			<li class="fragment fade-up">For more info, read the paper on Studium</li>
+			<li class="fragment fade-up">For more info, read the <a href="https://www.st.cs.uni-saarland.de/papers/tse2002/tse2002.pdf">paper</a>, also on Studium</li>
 		</ul>
 	</section>
 
@@ -212,15 +223,43 @@
 		<ul>
 			<li class="fragment fade-up">Found a <emph>1-minimal</emph> input</li>
 			<ul>
-				<li class="fragment fade-up">Removing any element of the array will cause the test to succeed</li>
+				<li class="fragment fade-up">Sub-sequence from which removing any single element will cause the test to succeed</li>
 			</ul>
 			<li class="fragment fade-up">Other types of minima exist</li>
 			<ul>
-				<li class="fragment fade-up">Local minimum</li>
-				<li class="fragment fade-up">Global minimum</li>
+				<li class="fragment fade-up">Local minimum
+					<ul>
+						<li class="fragment fade-up">Sub-sequence from which removing any elements will cause the test to succeed</li>
+					</ul>
+				</li>
+				<li class="fragment fade-up">Global minimum
+					<ul>
+						<li class="fragment fade-up">Smallest sub-sequence for which the test fails</li>
+					</ul>
+				</li>
 			</ul>
 			<li class="fragment fade-up">Global minima $\subseteq$ Local minima $\subseteq$ 1-Minima </li>
 		</ul>
+	</section>
+	<section>
+		<h3>Exercise - Minima</h3>
+		<div class="half-part">
+		Suppose a program has the following failing inputs:
+		<ol>
+			<li>{1, 2, 3, 6, 6, 8, 8}</li>
+			<li>{6, 6, 8, 8}</li>
+			<li>{8, 8}</li>
+			<li>{3}</li>
+		</ol>
+		</div>
+		<div class="half-part">
+		Which of them are:
+		<ul>
+			<li>Globally minimal</li>
+			<li>Locally minimal</li>
+			<li>1-minimal</li>
+		</ul>
+	</div>
 	</section>
 </section>
 
@@ -267,17 +306,6 @@
 		<ul>
 			<li class="fragment fade-up">Control dependencies</li>
 			<li class="fragment fade-up">Data dependency</li>
-		</ul>
-
-		<li class="fragment fade-up">Figure out which statements are control dependencies</li>
-		<li class="fragment fade-up">Need to create a <emph>Control Flow Graph</emph> (CFG)</li>
-
-		<ul>
-			<li class="fragment fade-up">Statement B is control dependent on A if A influences wether B is executed</li>
-		</ul>
-		<li class="fragment fade-up">Also need the <emph>data dependencies</emph></li>
-		<ul>
-			<li class="fragment fade-up">Statement B is data dependent on A if A writes to a variable that B reads from</li>
 		</ul>
 	</ul>
 </section>
@@ -327,7 +355,7 @@
 		<ul>
 			<li class="fragment fade-up">$x$ is updated by A</li>
 			<li class="fragment fade-up">$x$ is read by B</li>
-			<li class="fragment fade-up">$x$ not updated by any of the nodes (statements) from A to B</li>
+			<li class="fragment fade-up">$x$ is not updated by any of the nodes (statements) from A to B</li>
 		</ul>
 	</ul>
 </section>
@@ -373,7 +401,7 @@
 	<h3>Static Backward Slice</h3>
 	<div>Given some occurance of variable x in a statement S, the <emph>static backward slice</emph> is the set of statements T such that</div>
 	<ol style="margin-top: 1rem;">
-		<li>S in control-dependent on T, or</li>
+		<li>S is control-dependent on T, or</li>
 		<li>the occurance of x is data-dependent on T, or</li>
 		<li>T is a backward dependency of some statement from (1.) or (2.) above</li>
 	</ol>
@@ -382,7 +410,7 @@
 <section>
 	<section>
 		<h3>Example - Static Backward Slice</h3>
-		<pre class="C"><code data-trim data-noescape data-line-numbers="|14|3,4,5,6,9,10,11,13,14|5|">
+		<pre class="C"><code data-trim data-noescape data-line-numbers="|14|14,13|14,13,10,9|14,13,10,9,5|14,13,10,9,5,3|14,13,10,9,5,4,3|">
 			Pass = 0;
 			Fail = 0;
 			Count = 0;
@@ -398,9 +426,10 @@
 			average = TotalMarks/Count;
 			printf("The average was %d\n", average);
 		</code></pre>
+		<p class="fragment fade-up">Slice statements: 14, 13, 10, 9, 5, 4, 3</p>
 	</section>
 
-	<section data-background-color="white">
+	<!-- <section data-background-color="white">
 		<img class="r-stretch" src="images/avg_marks_example_1.drawio.svg">
 	</section>
 
@@ -410,7 +439,7 @@
 
 	<section data-background-color="white">
 		<img class="r-stretch" src="images/avg_marks_example_3.drawio.svg">
-	</section>
+	</section>-->
 </section>
 
 <section>
@@ -471,11 +500,12 @@
 
 	</ul>
 </section>
-
+<!--
 <section>
 	<h3>Debugging Setup</h3>
 	<img class="r-stretch" src="images/debugging_setup.drawio.svg">
 </section>
+-->
 
 <section>
 	<h1>Thanks for today!</h1>
